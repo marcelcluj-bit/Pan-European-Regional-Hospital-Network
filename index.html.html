@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ro" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Health RWA & AI Bio-Defense Hospital Network</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inter & JetBrains Mono Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0b132b',
+                            900: '#060a17',
+                            950: '#03050d',
+                        },
+                        web3: {
+                            cyan: '#00f2fe',
+                            blue: '#4facfe',
+                            emerald: '#10b981',
+                            purple: '#7c3aed',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-text-cyan { text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        .glow-text-rose { text-shadow: 0 0 10px rgba(244, 63, 94, 0.6); }
+        .glow-border-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.25); }
+        
+        /* Grid scan overlay for SEM Simulator */
+        .sem-grid-bg {
+            background-image: linear-gradient(rgba(0, 242, 254, 0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 242, 254, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Scanning Laser Beam Effect */
+        @keyframes scanBeam {
+            0% { top: 0%; opacity: 0.8; }
+            50% { top: 95%; opacity: 0.9; }
+            100% { top: 0%; opacity: 0.8; }
+        }
+        .scanner-beam {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00f2fe, #10b981, #00f2fe, transparent);
+            box-shadow: 0 0 15px #00f2fe, 0 0 8px #10b981;
+            animation: scanBeam 4s ease-in-out infinite;
+        }
+
+        /* Pulse radar ring */
+        @keyframes radarPulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .radar-pulse { animation: radarPulse 2.5s infinite ease-in-out; }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #060a17; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-web3-cyan selection:text-navy-950">
+
+    <!-- Top Alert Banner for Nosocomial Containment -->
+    <div id="containmentAlertBanner" class="hidden bg-gradient-to-r from-web3-rose via-amber-600 to-web3-rose text-white text-xs font-mono font-bold px-4 py-2 border-b border-rose-500/50 flex items-center justify-between animate-pulse">
+        <div class="flex items-center space-x-2 max-w-7xl mx-auto w-full">
+            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+            <span>ALERTĂ NOZOCOMIALĂ ACTIVĂ: Protocol Automat de Carantină declanșat în Spitalul Regional Iași (Nod RO-01) - Tulpina CRAB detectată!</span>
+        </div>
+        <button onclick="dismissAlert()" class="text-white hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand & Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-tr from-web3-blue via-web3-cyan to-web3-emerald p-0.5 shadow-lg shadow-web3-cyan/20">
+                        <div class="w-full h-full bg-navy-900 rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid fa-dna text-xl text-web3-cyan"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="font-extrabold text-lg text-white tracking-wide">EU HEALTH <span class="bg-gradient-to-r from-web3-cyan to-web3-emerald bg-clip-text text-transparent">BIO-DEFENSE</span></h1>
+                            <span class="bg-web3-cyan/10 text-web3-cyan border border-web3-cyan/30 text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold">AI Labs & RWA v3.1</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Rețeaua Europeană de 81 Spitale: Detectare Nozocomiale & Tokenizare RWA</p>
+                    </div>
+                </div>
+
+                <!-- Web3 Wallet & Key Metrics -->
+                <div class="hidden lg:flex items-center space-x-6">
+                    <div class="text-right">
+                        <div class="text-[11px] text-slate-400 font-mono">Monitorizare AI Nozocomiale</div>
+                        <div class="text-base font-bold text-web3-emerald font-mono flex items-center justify-end space-x-1">
+                            <span class="w-2 h-2 rounded-full bg-web3-emerald animate-ping mr-1"></span>
+                            <span>81 / 81 Labs Active</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[11px] text-slate-400 font-mono">Valoare Totală Imobilizată (TVL RWA)</div>
+                        <div class="text-base font-bold text-white font-mono">€ 1,420,500,000</div>
+                    </div>
+                    <button onclick="connectWallet()" id="walletBtn" class="bg-gradient-to-r from-web3-blue to-web3-cyan hover:from-web3-cyan hover:to-web3-emerald text-navy-950 font-bold text-xs px-4 py-2.5 rounded-xl transition duration-300 shadow-md shadow-web3-cyan/20 flex items-center space-x-2">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span id="walletText">Conectează Wallet Web3</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-navy-900/80 border-b border-slate-800 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex space-x-2 sm:space-x-4 overflow-x-auto py-2.5" id="mainNavTabs">
+            <button onclick="switchTab('pathogen-lab')" id="tab-pathogen-lab" class="nav-tab active px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-web3-cyan bg-slate-800/80 border border-web3-cyan/30">
+                <i class="fa-solid fa-microscope text-web3-cyan"></i>
+                <span>Lab AI & Microscop Electronic</span>
+            </button>
+            <button onclick="switchTab('containment')" id="tab-containment" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-800/40">
+                <i class="fa-solid fa-shield-virus"></i>
+                <span>Sistem Izolare & HVAC Clădire Smart</span>
+            </button>
+            <button onclick="switchTab('tokenomics')" id="tab-tokenomics" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-800/40">
+                <i class="fa-solid fa-coins"></i>
+                <span>Arhitectură Tokenomics & RWA</span>
+            </button>
+            <button onclick="switchTab('map')" id="tab-map" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-800/40">
+                <i class="fa-solid fa-earth-europe"></i>
+                <span>Harta Extinderii UE (81 Spitale)</span>
+            </button>
+            <button onclick="switchTab('staking')" id="tab-staking" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-800/40">
+                <i class="fa-solid fa-calculator"></i>
+                <span>Calculator Staking RWA</span>
+            </button>
+            <button onclick="switchTab('contracts')" id="tab-contracts" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-800/40">
+                <i class="fa-solid fa-code"></i>
+                <span>Smart Contracts</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: AI PATHOGEN LAB & ELECTRON MICROSCOPE -->
+        <!-- ========================================== -->
+        <section id="content-pathogen-lab" class="tab-content space-y-6">
+            
+            <!-- Quick Stats Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-mono block">Timp Mediu Scanare AI</span>
+                        <strong class="text-xl font-bold text-web3-cyan font-mono">1.8 Secunde</strong>
+                        <span class="text-[10px] text-slate-500 block">vs. 48 ore culturi clasice</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-web3-cyan/10 flex items-center justify-center text-web3-cyan">
+                        <i class="fa-solid fa-bolt text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-mono">Rată Identificare Nozocomiale</span>
+                        <strong class="text-xl font-bold text-web3-emerald font-mono">99.74% Acuratețe</strong>
+                        <span class="text-[10px] text-slate-500 block">Neural Vision ResNet-101</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-web3-emerald/10 flex items-center justify-center text-web3-emerald">
+                        <i class="fa-solid fa-bullseye text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-mono">Senzori HVAC & Aer ATI</span>
+                        <strong class="text-xl font-bold text-web3-amber font-mono">2,430 Noduri IoT</strong>
+                        <span class="text-[10px] text-slate-500 block">30 noduri / spital regional</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-web3-amber/10 flex items-center justify-center text-web3-amber">
+                        <i class="fa-solid fa-wind text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-mono">Alerte Răspândite în UE</span>
+                        <strong class="text-xl font-bold text-web3-rose font-mono">2 Alerte Active</strong>
+                        <span class="text-[10px] text-slate-500 block">DePIN Cross-Hospital Warning</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-web3-rose/10 flex items-center justify-center text-web3-rose">
+                        <i class="fa-solid fa-virus-covid text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Microscope & AI Diagnostic Workspace -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left: Microscope Controls & Sample Selection (4 cols) -->
+                <div class="lg:col-span-4 glass-panel p-6 rounded-2xl space-y-6">
+                    <div class="border-b border-slate-800 pb-3">
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-vial text-web3-cyan"></i>
+                            <span>Selectare Probele Spitalicești</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Prelevare automată din zonele critice ale spitalului.</p>
+                    </div>
+
+                    <!-- Hospital Node Selector -->
+                    <div>
+                        <label class="text-xs text-slate-300 font-mono font-semibold block mb-1">Spital Regional Evaluat:</label>
+                        <select id="hospitalNodeSelector" onchange="changeHospitalNode()" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-200 focus:border-web3-cyan focus:outline-none font-mono">
+                            <option value="RO-01">🇷🇴 Spital Regional IAȘI (Nod RO-01)</option>
+                            <option value="RO-02">🇷🇴 Spital Regional CLUJ (Nod RO-02)</option>
+                            <option value="RO-03">🇷🇴 Spital Regional CRAIOVA (Nod RO-03)</option>
+                            <option value="PL-01">🇵🇱 Kraków Regional Medical Hub (Nod PL-01)</option>
+                            <option value="DE-01">🇩🇪 Leipzig Regional Hospital (Nod DE-01)</option>
+                            <option value="FR-01">🇫🇷 Lyon Regional Emergency (Nod FR-01)</option>
+                        </select>
+                    </div>
+
+                    <!-- Sample Type Buttons -->
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-300 font-mono font-semibold block">Sursă Recoltare Probiotică/Aeriană:</label>
+                        
+                        <button onclick="selectSample('air_icu')" id="sampleBtn-air_icu" class="sample-btn active w-full p-3 rounded-xl border text-left text-xs transition flex items-center justify-between bg-slate-800 border-web3-cyan text-white">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-fan text-web3-cyan"></i>
+                                <div>
+                                    <strong class="block font-semibold">Filtre Aer HVAC Bloc Operator / ATI</strong>
+                                    <span class="text-[10px] text-slate-400">Recoltat acum 12 min</span>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-web3-rose animate-pulse"></span>
+                        </button>
+
+                        <button onclick="selectSample('surface_surgery')" id="sampleBtn-surface_surgery" class="sample-btn w-full p-3 rounded-xl border text-left text-xs transition flex items-center justify-between bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-scalpel text-web3-emerald"></i>
+                                <div>
+                                    <strong class="block font-semibold">Suprafață Instrumentar Chirurgical</strong>
+                                    <span class="text-[10px] text-slate-400">Recoltat acum 35 min</span>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-web3-emerald"></span>
+                        </button>
+
+                        <button onclick="selectSample('patient_blood')" id="sampleBtn-patient_blood" class="sample-btn w-full p-3 rounded-xl border text-left text-xs transition flex items-center justify-between bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-droplet text-web3-rose"></i>
+                                <div>
+                                    <strong class="block font-semibold">Hemocultură Pacient Sepsis (ATI)</strong>
+                                    <span class="text-[10px] text-slate-400">Recoltat acum 2 ore</span>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-web3-amber"></span>
+                        </button>
+
+                        <button onclick="selectSample('water_endoscopy')" id="sampleBtn-water_endoscopy" class="sample-btn w-full p-3 rounded-xl border text-left text-xs transition flex items-center justify-between bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-faucet-drip text-web3-blue"></i>
+                                <div>
+                                    <strong class="block font-semibold">Ape Spălare Endoscopie & Sterilizare</strong>
+                                    <span class="text-[10px] text-slate-400">Recoltat acum 1 oră</span>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-web3-emerald"></span>
+                        </button>
+                    </div>
+
+                    <!-- SEM Microscope Zoom & Hardware Controls -->
+                    <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                        <span class="text-xs font-mono font-bold text-web3-cyan block flex justify-between">
+                            <span>Mărire Microscop Electronic (SEM):</span>
+                            <span id="zoomLevelText" class="text-white">x 50,000</span>
+                        </span>
+                        <input type="range" id="zoomSlider" min="5000" max="150000" step="5000" value="50000" oninput="updateMicroscopeZoom()" class="w-full accent-web3-cyan cursor-pointer">
+                        <div class="flex justify-between text-[10px] font-mono text-slate-500">
+                            <span>5,000x (Microbiologic)</span>
+                            <span>150,000x (Nanometric)</span>
+                        </div>
+                    </div>
+
+                    <button onclick="triggerAIScan()" class="w-full bg-gradient-to-r from-web3-cyan via-web3-blue to-web3-emerald text-navy-950 font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-web3-cyan/20 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-microchip text-base"></i>
+                        <span>Porneste Scanarea AI Neural Vision</span>
+                    </button>
+                </div>
+
+                <!-- Center: Interactive SEM Electronic Microscope Canvas Display (5 cols) -->
+                <div class="lg:col-span-5 glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-web3-cyan animate-pulse"></span>
+                            <h3 class="font-bold text-white text-sm font-mono">Microscop Scanat cu Fascicul de Electroni (SEM-2026)</h3>
+                        </div>
+                        <span class="text-[11px] font-mono bg-slate-800 text-web3-cyan px-2.5 py-1 rounded-md border border-slate-700" id="semStatusTag">STATUS: SCANARE ACTIVĂ</span>
+                    </div>
+
+                    <!-- Microscope Viewport Box -->
+                    <div class="relative w-full aspect-square bg-slate-950 rounded-xl overflow-hidden border border-slate-800 sem-grid-bg flex items-center justify-center">
+                        <!-- Laser Scanning Beam overlay -->
+                        <div class="scanner-beam"></div>
+
+                        <!-- Target Bounding Box AI Overlay -->
+                        <div id="aiBoundingBox" class="absolute border-2 border-web3-rose bg-web3-rose/10 rounded-lg p-2 transition-all duration-500 flex flex-col justify-between glow-border-rose" style="width: 60%; height: 60%; top: 20%; left: 20%;">
+                            <div class="flex justify-between text-[10px] font-mono text-web3-rose font-bold">
+                                <span>TARGET DETECTED [99.8%]</span>
+                                <span id="boundingCoord">x:412 y:882</span>
+                            </div>
+                            <div class="text-center font-mono text-xs font-extrabold text-web3-rose glow-text-rose bg-navy-950/80 py-1 rounded border border-web3-rose/40" id="detectedNameOverlay">
+                                Acinetobacter baumannii (CRAB)
+                            </div>
+                        </div>
+
+                        <!-- Pathogen Canvas Graphic Representation -->
+                        <div id="pathogenGraphic" class="relative z-0 flex items-center justify-center transition-all duration-300" style="transform: scale(1);">
+                            <!-- Microorganism SVG Simulation -->
+                            <svg id="pathogenSvg" class="w-64 h-64 text-web3-rose drop-shadow-[0_0_20px_rgba(244,63,94,0.4)]" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M50,100 C50,60 80,40 100,40 C120,40 150,60 150,100 C150,140 120,160 100,160 C80,160 50,140 50,100 Z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="4" stroke-dasharray="8 4" />
+                                <circle cx="80" cy="80" r="10" fill="currentColor" />
+                                <circle cx="120" cy="110" r="14" fill="currentColor" />
+                                <circle cx="95" cy="125" r="8" fill="currentColor" />
+                                <!-- Pili / Flagella tentacles -->
+                                <path d="M50,100 Q20,80 10,100" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M150,100 Q180,120 190,90" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M100,40 Q110,10 90,5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M100,160 Q90,190 110,195" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+
+                        <!-- Microscope Technical Details HUD overlay -->
+                        <div class="absolute bottom-2 left-2 right-2 flex justify-between text-[10px] font-mono text-slate-400 bg-navy-950/80 p-2 rounded-lg border border-slate-800">
+                            <div>HV: <span class="text-white">15.0 kV</span></div>
+                            <div>WD: <span class="text-white">8.2 mm</span></div>
+                            <div>Field: <span class="text-white" id="fieldSizeText">2.5 µm</span></div>
+                            <div>Signal: <span class="text-web3-cyan">InLens SE2</span></div>
+                        </div>
+                    </div>
+
+                    <!-- AI Diagnostic Summary Bar -->
+                    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 font-mono">Clasificare Tulpina:</span>
+                        <span id="pathogenTypeTag" class="font-extrabold font-mono text-web3-rose bg-web3-rose/10 px-3 py-1 rounded-full border border-web3-rose/30">Superbug Multi-Rezistent (MDR)</span>
+                    </div>
+                </div>
+
+                <!-- Right: AI Genomics & Resistance Profile (3 cols) -->
+                <div class="lg:col-span-3 glass-panel p-6 rounded-2xl space-y-5">
+                    <div class="border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                            <i class="fa-solid fa-dna text-web3-emerald"></i>
+                            <span>Profil Rezistență AMR & Genomă</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Identificare secvențe genetice periculoase.</p>
+                    </div>
+
+                    <!-- Detected Resistant Genes -->
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 font-mono block">Gena Rezistență Detectată:</span>
+                            <strong class="text-web3-rose text-sm font-mono block mt-0.5" id="geneNameText">blaOXA-23 / blaNDM-1</strong>
+                            <p class="text-[11px] text-slate-300 mt-1" id="geneDescText">Inactivează Carbapenemele (Meropenem/Imipenem). Risc crescut de mortalitate la pacienții ATI.</p>
+                        </div>
+
+                        <!-- AMR Antibiotic Susceptibility Matrix -->
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] text-slate-400 font-mono font-semibold block">Antibiogramă Predictivă AI:</span>
+                            
+                            <div class="flex justify-between items-center p-2 rounded bg-slate-900 border border-slate-800">
+                                <span>Carbapeneme (Meropenem)</span>
+                                <span class="text-web3-rose font-bold font-mono text-[10px] bg-web3-rose/20 px-2 py-0.5 rounded">REZISTENT</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 rounded bg-slate-900 border border-slate-800">
+                                <span>Colistină / Polymyxin B</span>
+                                <span class="text-web3-amber font-bold font-mono text-[10px] bg-web3-amber/20 px-2 py-0.5 rounded">INTERMEDIAR</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 rounded bg-slate-900 border border-slate-800">
+                                <span>Terapie Fagică Specifică (vB-Ab)</span>
+                                <span class="text-web3-emerald font-bold font-mono text-[10px] bg-web3-emerald/20 px-2 py-0.5 rounded">SENSIBIL (RECOMANDAT)</span>
+                            </div>
+                        </div>
+
+                        <!-- Protocol Action Button -->
+                        <button onclick="triggerAutomatedContainment()" class="w-full bg-web3-rose hover:bg-rose-600 text-white font-extrabold text-xs py-3 rounded-xl transition shadow-lg shadow-web3-rose/30 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                            <span>Apasă pentru Izolare HVAC & Robot UV-C</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: SMART BUILDING CONTAINMENT & HVAC   -->
+        <!-- ========================================== -->
+        <section id="content-containment" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-virus text-web3-rose"></i>
+                            <span>Sistem Automatizat de Izolare & Control Clădire Smart (nZEB)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Interfațat direct cu senzorii de presiune negativă și roboti Autonom Decontaminatori UV-C.</p>
+                    </div>
+                    <span class="text-xs font-mono bg-web3-emerald/20 text-web3-emerald border border-web3-emerald/30 px-3 py-1 rounded-full">Prototip Interconectat IoT</span>
+                </div>
+
+                <!-- Containment Controls Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Unit 1: Air HVAC Isolation -->
+                    <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-web3-cyan/10 flex items-center justify-center text-web3-cyan">
+                                    <i class="fa-solid fa-fan text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Modulare Presiune Aer HVAC</h4>
+                                    <span class="text-[10px] text-slate-400">Blocare Răspândire Aeriană</span>
+                                </div>
+                            </div>
+                            <span id="hvacStatusBadge" class="text-[10px] font-mono bg-web3-emerald/20 text-web3-emerald px-2 py-1 rounded">Presiune Normală</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Trece automat sectorul infectat în presiune negativă (-15 Pa) pentru a preveni ieșirea germenilor în holurile spitalului.</p>
+                        <button onclick="toggleHvacIsolation()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-2.5 rounded-xl border border-slate-700 transition">
+                            Schimbă Stare HVAC Presiune Negativă
+                        </button>
+                    </div>
+
+                    <!-- Unit 2: UV-C Autonomous Robots -->
+                    <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-web3-purple/10 flex items-center justify-center text-web3-purple">
+                                    <i class="fa-solid fa-robot text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Flotă Roboti UV-C Autonomi</h4>
+                                    <span class="text-[10px] text-slate-400">Sterilizare Continuă Surfaces</span>
+                                </div>
+                            </div>
+                            <span id="robotStatusBadge" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-1 rounded">Standby (Dock)</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Dispecerizează roboti autonomi cu lămpi UV-C de 254nm în sălile de operație și saloane după detectarea nozocomială.</p>
+                        <button onclick="deployUvcRobots()" class="w-full bg-web3-purple/20 hover:bg-web3-purple/40 text-web3-purple font-bold text-xs py-2.5 rounded-xl border border-web3-purple/30 transition">
+                            Trimite Robot UV-C la Locație
+                        </button>
+                    </div>
+
+                    <!-- Unit 3: Cross-Hospital Warning (DePIN Protocol) -->
+                    <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-web3-amber/10 flex items-center justify-center text-web3-amber">
+                                    <i class="fa-solid fa-network-wired text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">Alerte DePIN On-Chain UE</h4>
+                                    <span class="text-[10px] text-slate-400">Sincronizare 81 Spitale</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono bg-web3-cyan/20 text-web3-cyan px-2 py-1 rounded">Smart Contract Sync</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Avertizează instantaneu laboratoarele din celelalte 80 de spitale din UE privind mutația nouă identificată.</p>
+                        <button onclick="broadcastCrossHospitalAlert()" class="w-full bg-web3-amber/20 hover:bg-web3-amber/40 text-web3-amber font-bold text-xs py-2.5 rounded-xl border border-web3-amber/30 transition">
+                            Transmite Amprenta Genomică în Rețeaua UE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: TOKENOMICS & RWA ARCHITECTURE      -->
+        <!-- ========================================== -->
+        <section id="content-tokenomics" class="tab-content hidden space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-mono uppercase font-semibold">Model Dual-Token</span>
+                    <h3 class="text-xl font-extrabold text-white mt-1">$MEDGOV & $MEDINFRA</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">Guvernanță Politici + Yield din Active Medicale Reale</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-mono uppercase font-semibold">Tinta Finanțare Totală</span>
+                    <h3 class="text-xl font-extrabold text-web3-emerald mt-1">€ 40.5 Miliarde</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">50% Tokenizat + 50% Fonduri Structurate UE</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-mono uppercase font-semibold">Spitale per Stat Membru</span>
+                    <h3 class="text-xl font-extrabold text-web3-purple mt-1">3 Noduri / Țară</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">27 Țări UE &bull; Total 81 Spitale Regionale</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-mono uppercase font-semibold">Apy Estimat RWA Yield</span>
+                    <h3 class="text-xl font-extrabold text-web3-amber mt-1">8.5% - 12.4%</h3>
+                    <p class="text-[11px] text-slate-400 mt-2">Backing: Servicii CNAS/Decontări UE & Chirii echipamente</p>
+                </div>
+            </div>
+
+            <!-- Token Specs & Distribution Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-panel p-6 rounded-2xl space-y-6">
+                    <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-web3-cyan"></i>
+                            <span>Sistemul Dual-Token EU Health</span>
+                        </h2>
+                        <span class="text-xs font-mono bg-web3-cyan/10 text-web3-cyan px-2.5 py-1 rounded-full border border-web3-cyan/20">ERC-20 & ERC-3643 (RWA)</span>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-web3-cyan text-sm font-mono">$MEDGOV (Governance Token)</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">1,000,000,000 Supply</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Oferă drepturi de vot în DAO pentru selectarea locațiilor spitalicești, aprobarea licitațiilor de echipamente, auditul anticorupție și alocarea granturilor UE.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-web3-emerald text-sm font-mono">$MEDINFRA (RWA Security / Yield)</span>
+                            <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">500,000,000 Initial Supply</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Token cu acoperire în active reale (clădiri spitalicești nZEB, aparatură RMN/CT, laboratoare microscopie electronică). Deținătorii primesc dividende directe din veniturile operaționale.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-6">
+                    <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-pie text-web3-emerald"></i>
+                            <span>Distribuție Tokens & Alocare Trezorerie</span>
+                        </h2>
+                    </div>
+
+                    <div class="relative min-h-[220px] flex items-center justify-center">
+                        <canvas id="tokenDistributionChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: PAN-EUROPEAN EXPANSION MAP          -->
+        <!-- ========================================== -->
+        <section id="content-map" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-map-location-dot text-web3-cyan"></i>
+                        <span>Masterplan Extindere Europeană: 27 Țări &bull; 81 Spitale</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Fiecare stat membru UE va beneficia de 3 noduri spitalicești regionale dotate cu Laborator AI de Microscopie.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-2" id="countryNodesGrid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-4">
+                    <div class="border-b border-slate-800 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl" id="selectedCountryFlag">🇷🇴</span>
+                            <div>
+                                <h3 class="font-bold text-white text-base" id="selectedCountryName">România</h3>
+                                <p class="text-xs text-slate-400" id="selectedCountryPhase">Faza 1 &bull; 3 Lab-uri AI de Nozocomiale</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 flex-1" id="hospitalListContainer">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: STAKING CALCULATOR                  -->
+        <!-- ========================================== -->
+        <section id="content-staking" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-6">
+                <div class="border-b border-slate-800 pb-3">
+                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-web3-cyan"></i>
+                        <span>Calculator Staking & Yield Operațional RWA</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="text-slate-300 font-semibold block mb-1">Suma Staked ($MEDINFRA):</label>
+                            <input type="range" id="stakeAmountInput" min="1000" max="500000" step="1000" value="50000" oninput="updateCalculator()" class="w-full accent-web3-cyan cursor-pointer">
+                            <span class="text-web3-cyan font-mono font-bold block mt-1" id="stakeAmountLabel">50,000 Tokens</span>
+                        </div>
+
+                        <div>
+                            <label class="text-slate-300 font-semibold block mb-1">Perioadă Lockup (Luni):</label>
+                            <input type="range" id="lockDurationInput" min="6" max="60" step="6" value="24" oninput="updateCalculator()" class="w-full accent-web3-emerald cursor-pointer">
+                            <span class="text-web3-emerald font-mono font-bold block mt-1" id="lockDurationLabel">24 Luni</span>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-900/80 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-slate-400 text-xs">APY Proiectat RWA:</span>
+                            <span class="text-web3-emerald font-mono font-bold text-lg" id="calculatedApyTag">11.4% APY</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="p-3 bg-slate-950 rounded-lg">
+                                <span class="text-[10px] text-slate-400 block">Venit Lunar Estimated</span>
+                                <strong class="text-web3-cyan font-mono text-lg" id="monthlyYieldText">€ 475</strong>
+                            </div>
+                            <div class="p-3 bg-slate-950 rounded-lg">
+                                <span class="text-[10px] text-slate-400 block">Total Dividende Finale</span>
+                                <strong class="text-web3-emerald font-mono text-lg" id="yearlyYieldText">€ 11,400</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 6: SMART CONTRACTS                     -->
+        <!-- ========================================== -->
+        <section id="content-contracts" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-code text-web3-cyan"></i>
+                    <span>Smart Contracts (NosocomialLabRegistry.sol)</span>
+                </h2>
+                <div class="bg-navy-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+<pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+/**
+ * @title PathogenNosocomialRegistry
+ * @dev Sincronizează alertele AI de infecții nozocomiale la nivelul celor 81 de spitale din UE
+ */
+contract PathogenNosocomialRegistry {
+    struct PathogenAlert {
+        uint256 hospitalNodeId;
+        string pathogenName;
+        string amrGeneProfile;
+        bool containmentTriggered;
+        uint256 timestamp;
+    }
+
+    mapping(uint256 => PathogenAlert[]) public hospitalAlerts;
+
+    event AlertBroadcasted(uint256 indexed nodeId, string pathogen, string genes);
+
+    function registerAIPathogenDetection(
+        uint256 _nodeId,
+        string memory _pathogen,
+        string memory _genes,
+        bool _autoContainment
+    ) external {
+        hospitalAlerts[_nodeId].push(PathogenAlert({
+            hospitalNodeId: _nodeId,
+            pathogenName: _pathogen,
+            amrGeneProfile: _genes,
+            containmentTriggered: _autoContainment,
+            timestamp: block.timestamp
+        }));
+
+        emit AlertBroadcasted(_nodeId, _pathogen, _genes);
+    }
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800/80 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-hospital text-web3-cyan"></i>
+                <span>&copy; 2026 EU Health AI Bio-Defense & RWA Infrastructure Network.</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="hover:text-web3-cyan">Protocol Nozocomiale AI</a>
+                <a href="#" class="hover:text-web3-cyan">MiCA & EU Health Data Space</a>
+                <a href="#" class="hover:text-web3-cyan">DePIN Genomic Alert</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Sample Pathogen Database
+        const pathogenDb = {
+            'air_icu': {
+                name: 'Acinetobacter baumannii (CRAB)',
+                type: 'Superbug Multi-Rezistent (MDR)',
+                gene: 'blaOXA-23 / blaNDM-1',
+                geneDesc: 'Carbapenemază extrem de contagioasă în spațiile ATI. Risc crescut de epidemie spitalicească.',
+                svgColor: '#f43f5e',
+                zoom: 'x 50,000',
+                field: '2.5 µm',
+                threatLevel: 'HIGH'
+            },
+            'surface_surgery': {
+                name: 'Staphylococcus aureus Rezistent la Meticilină (MRSA)',
+                type: 'Gram-Pozitiv Nozocomial',
+                gene: 'mecA / SCCmec Type IV',
+                geneDesc: 'Modifică proteina PBP2a prevenind legarea penicilinelor și cefalosporinelor.',
+                svgColor: '#f59e0b',
+                zoom: 'x 35,000',
+                field: '4.0 µm',
+                threatLevel: 'MEDIUM'
+            },
+            'patient_blood': {
+                name: 'Klebsiella pneumoniae (Tulpina KPC-2)',
+                type: 'Enterobacteriaceae Producătoare de Carbapenemaze',
+                gene: 'blaKPC-2 / rmpA (Hipervirulent)',
+                geneDesc: 'Secretă capsulă polizaharidică groasă ce blochează fagocitoza în hemoculturi.',
+                svgColor: '#7c3aed',
+                zoom: 'x 60,000',
+                field: '1.8 µm',
+                threatLevel: 'CRITICAL'
+            },
+            'water_endoscopy': {
+                name: 'Pseudomonas aeruginosa (MDR)',
+                type: 'Bacterie Producătoare de Biofilm',
+                gene: 'mexAB-OprM (Eflux Pump) / VIM-2',
+                geneDesc: 'Aderă la conductele endoscoapelor formând un biofilm impenetrabil pentru dezinfectanți obișnuiți.',
+                svgColor: '#00f2fe',
+                zoom: 'x 40,000',
+                field: '3.2 µm',
+                threatLevel: 'MEDIUM'
+            }
+        };
+
+        const euCountries = [
+            { id: 'RO', name: 'România', flag: '🇷🇴', activeNodes: 3, totalNodes: 3, budget: '€ 1.5B', hospitals: ['Spital Regional IAȘI (Lab AI On-Chain)', 'Spital Regional CLUJ (Lab AI On-Chain)', 'Spital Regional CRAIOVA (Lab AI On-Chain)'] },
+            { id: 'PL', name: 'Polonia', flag: '🇵🇱', activeNodes: 3, totalNodes: 3, budget: '€ 1.8B', hospitals: ['Kraków Regional Hospital', 'Gdańsk Emergency Node', 'Poznań Med Center'] },
+            { id: 'DE', name: 'Germania', flag: '🇩🇪', activeNodes: 3, totalNodes: 3, budget: '€ 2.4B', hospitals: ['Leipzig Regional Hospital', 'Nürnberg Trauma Center', 'Dresden Smart Node'] }
+        ];
+
+        let selectedSampleKey = 'air_icu';
+
+        window.onload = function() {
+            initTokenChart();
+            renderCountryGrid();
+            selectCountry('RO');
+            updateMicroscopeDisplay();
+            updateCalculator();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active', 'text-web3-cyan', 'bg-slate-800/80', 'border', 'border-web3-cyan/30');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) {
+                activeTab.classList.add('active', 'text-web3-cyan', 'bg-slate-800/80', 'border', 'border-web3-cyan/30');
+                activeTab.classList.remove('text-slate-400');
+            }
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+        }
+
+        function selectSample(key) {
+            selectedSampleKey = key;
+            document.querySelectorAll('.sample-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-slate-800', 'border-web3-cyan', 'text-white');
+                btn.classList.add('bg-slate-900/60', 'border-slate-800', 'text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`sampleBtn-${key}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-slate-800', 'border-web3-cyan', 'text-white');
+            }
+
+            updateMicroscopeDisplay();
+        }
+
+        function updateMicroscopeDisplay() {
+            const info = pathogenDb[selectedSampleKey];
+            if (!info) return;
+
+            document.getElementById('detectedNameOverlay').innerText = info.name;
+            document.getElementById('pathogenTypeTag').innerText = info.type;
+            document.getElementById('geneNameText').innerText = info.gene;
+            document.getElementById('geneDescText').innerText = info.geneDesc;
+            document.getElementById('zoomLevelText').innerText = info.zoom;
+            document.getElementById('fieldSizeText').innerText = info.field;
+
+            const svgPath = document.getElementById('pathogenSvg');
+            svgPath.style.color = info.svgColor;
+        }
+
+        function updateMicroscopeZoom() {
+            const zoomVal = document.getElementById('zoomSlider').value;
+            document.getElementById('zoomLevelText').innerText = `x ${parseInt(zoomVal).toLocaleString()}`;
+            const scale = 0.6 + (zoomVal / 150000) * 0.8;
+            document.getElementById('pathogenGraphic').style.transform = `scale(${scale})`;
+        }
+
+        function triggerAIScan() {
+            const statusTag = document.getElementById('semStatusTag');
+            statusTag.innerText = 'STATUS: SCANARE NEURALĂ ÎN CURS...';
+            statusTag.className = 'text-[11px] font-mono bg-web3-amber/20 text-web3-amber px-2.5 py-1 rounded-md border border-web3-amber/30 animate-pulse';
+
+            setTimeout(() => {
+                statusTag.innerText = 'STATUS: IDENTIFICARE REUȘITĂ';
+                statusTag.className = 'text-[11px] font-mono bg-web3-emerald/20 text-web3-emerald px-2.5 py-1 rounded-md border border-web3-emerald/30';
+                alert(`AI Neural Vision complete! Tulpina identificată: ${pathogenDb[selectedSampleKey].name}. Profilul AMR transmis în Smart Contract.`);
+            }, 1200);
+        }
+
+        function triggerAutomatedContainment() {
+            document.getElementById('containmentAlertBanner').classList.remove('hidden');
+            switchTab('containment');
+        }
+
+        function toggleHvacIsolation() {
+            const badge = document.getElementById('hvacStatusBadge');
+            badge.innerText = 'PRESIUNE NEGATIVĂ ACTIVATĂ (-15 Pa)';
+            badge.className = 'text-[10px] font-mono bg-web3-rose/20 text-web3-rose px-2 py-1 rounded animate-pulse';
+            alert('HVAC reconfigurat în presiune negativă! Răspândirea aeriană a fost blocată hermetic.');
+        }
+
+        function deployUvcRobots() {
+            const badge = document.getElementById('robotStatusBadge');
+            badge.innerText = 'ROBOT UV-C ÎN MISIUNE';
+            badge.className = 'text-[10px] font-mono bg-web3-purple/20 text-web3-purple px-2 py-1 rounded animate-pulse';
+            alert('Robot Autonom UV-C trimis în zona ATI pentru sterilizare suprafete.');
+        }
+
+        function broadcastCrossHospitalAlert() {
+            alert('Alerta Genomică a fost transmisă pe blockchain către toate celelalte 80 de spitale din rețeaua UE!');
+        }
+
+        function dismissAlert() {
+            document.getElementById('containmentAlertBanner').classList.add('hidden');
+        }
+
+        function renderCountryGrid() {
+            const container = document.getElementById('countryNodesGrid');
+            container.innerHTML = '';
+            euCountries.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between bg-slate-900/60 border-slate-800 hover:bg-slate-800/60';
+                card.onclick = () => selectCountry(c.id);
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">${c.flag}</span>
+                        <div>
+                            <h4 class="font-bold text-white text-xs">${c.name}</h4>
+                            <span class="text-[10px] text-web3-cyan font-mono">3 Lab-uri AI Activated</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectCountry(id) {
+            const c = euCountries.find(item => item.id === id) || euCountries[0];
+            document.getElementById('selectedCountryFlag').innerText = c.flag;
+            document.getElementById('selectedCountryName').innerText = c.name;
+
+            const hospContainer = document.getElementById('hospitalListContainer');
+            hospContainer.innerHTML = '';
+            c.hospitals.forEach(h => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-lg bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center';
+                item.innerHTML = `<span class="font-medium text-slate-200">${h}</span> <i class="fa-solid fa-microscope text-web3-cyan"></i>`;
+                hospContainer.appendChild(item);
+            });
+        }
+
+        function updateCalculator() {
+            const amount = parseInt(document.getElementById('stakeAmountInput').value);
+            const months = parseInt(document.getElementById('lockDurationInput').value);
+            document.getElementById('stakeAmountLabel').innerText = `${amount.toLocaleString()} Tokens`;
+            document.getElementById('lockDurationLabel').innerText = `${months} Luni`;
+
+            const yearly = amount * 0.114;
+            document.getElementById('monthlyYieldText').innerText = `€ ${Math.round(yearly / 12).toLocaleString()}`;
+            document.getElementById('yearlyYieldText').innerText = `€ ${Math.round(yearly * (months / 12)).toLocaleString()}`;
+        }
+
+        function changeHospitalNode() {
+            alert('Nod Spitalicesc schimbat. S-au încărcat datele din laboratorul local.');
+        }
+
+        function connectWallet() {
+            document.getElementById('walletText').innerText = '0x8F3...9A12 (Conectat)';
+            alert('Wallet Web3 conectat cu succes pe Ethereum Mainnet!');
+        }
+
+        function initTokenChart() {
+            const ctx = document.getElementById('tokenDistributionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cofinanțare UE/PNRR', 'Public Staking', 'Operator Noduri Lab', 'Trezorerie DAO'],
+                    datasets: [{
+                        data: [40, 30, 20, 10],
+                        backgroundColor: ['#00f2fe', '#4facfe', '#10b981', '#7c3aed'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
