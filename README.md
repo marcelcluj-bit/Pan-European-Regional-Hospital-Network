@@ -35,4 +35,4 @@ An open-source architecture for a decentralized network of 81 modern nZEB Region
 
 ## 🔗 External Resources & Documentation
 
-* 📂 **Full Project Documentation & Specifications:** [Google Drive External Link](https://drive.google.com/file/d/13WMxblr0vc5pfc6loKs8x2gZghm75MCb/view?usp=sharing)
+* 📂 **Full Project Documentation & Specifications:** [[Google Drive External Link](https://drive.google.com/file/d/13WMxblr0vc5pfc6loKs8x2gZghm75MCb/view?usp=sharing)](https://docs.google.com/document/d/13WMxblr0vc5pfc6IoKs8x2gZghm75MCb/edit#heading=h.c7x3c7adkbvg)
